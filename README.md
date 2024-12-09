@@ -43,3 +43,8 @@ A sector is a rectangle of variable width and height, and contains four lists, d
 Starting from the sector the camera is currently in: the wall vertices are perspective transformed, and the walls are drawn by interpolating between vertices.  (This incurs a couple multiplies for each vertex, and a division for each wall.  Annoying, but maybe not deal-breaking, on a very simple platform.)  If textured, a trapezoid perspective texturing method is used.  To build arbitrary (but still block-based) regions, tag some walls as portals to another sector.  Instead of drawing them solid, add their start and end columns to a list.  Therefore, this is a 2D sector-and-portal method, like the Build engine, but with orthogonal line segments only, saving a lot of geometry testing.
 
 When the present sector is done drawing, enter each portal, recursively, and repeat the sector drawing process from that window.  Drawing is front-to-back, so occlusion is perfect.  Pathological cases are diagonal hallways, which can only be sliced into 1x1 or 1x2 sectors.  As a graph-based method, a map grid is no longer required at all -- noneuclidian geometry can be hacked into this format.
+
+Update 2024-12-09
+---
+Added a JS port. Accessible at: https://t3sl4co1l.github.io/raycast_win/index.html
+Some updates were made, including addressing the input-canceling behavior (mentioned above!) which was a silly logic mistake.  This and other tweaks can be back-propagated.  Mouse drag and touch input were added, which seems to work pretty well.
