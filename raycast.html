@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+  <head>
+	<title>Raycast JS Demo</title>
+    <meta name=viewport content="width=736, initial-scale=1">
+	<style type="text/css" media=all><!--
+body {
+	font-family: Verdana, Arial, sans-serif;
+	line-height: 130%;
+	font-size: 100%;
+	text-size-adjust: none;
+	-webkit-text-size-adjust: none;
+}
+h1 {
+	margin-left: 8%;
+	padding-bottom: 8px;
+}
+.messagebox {
+	color: #e00000;
+	font-size: small;
+}
+p {
+	padding-bottom: 0.5em;
+	margin-left: 5%;
+	margin-right: 10%;
+	font-size: inherit;
+}
+span.code {
+	font-family: Courier New, monospace;
+	font-weight: bold;
+	white-space: nowrap;
+	background-color: #f2f2f2;
+	color: #202020;
+}
+table {
+	padding-bottom: 0.5em;
+	margin-left: 5%;
+	margin-right: 10%;
+	font-size: inherit;
+}
+div {
+	text-align: center;
+}
+tr {
+	font-size: inherit;
+}
+td {
+	padding: 4px 0;
+	font-size: inherit;
+}
+canvas {
+	border: 1px solid #404040;
+}
+input[type=file] {
+	border: 1px solid #404040;
+	padding: 4px;
+}
+	--></style>
+  </head>
+  <body>
+	<h1>Raycast JS Demo</h1>
+	<table>
+	  <tr><td><a href="level.map">level.map</a> <input type="button" id="urlload" value="Load" style="padding: 2px 4px;"></td></tr>
+	  <tr><td>From file: <input type="file" id="filein"></td></tr>
+	  <tr><td>
+		Format: <input type="radio" name="filefmt" id="filemap" checked><label for="filemap">MAP</label> &nbsp;
+		<input type="radio" name="filefmt" id="filejson"><label for="filejson">JSON</label> &nbsp;
+		<input type="button" id="fileload" value="Load" style="padding: 4px 8px;">
+	  </td></tr>
+	  <tr><td><label for="mute">Mute</label><input type="checkbox" id="mute" checked></td></tr>
+	  <tr><td class="messagebox" id="messagebox"></td></tr>
+	</table>
+	<p>&nbsp;</p>
+	<div><canvas width="640" height="480" id="viewport">Canvas support and scripting are required for this demo.</canvas></div>
+	<p>Controls: W, A, S, D: forward, strafe left, backpedal, strafe right. Arrow keys: turn and move forward/backward.  Also try mouse drag on the canvas.</p>
+	<p>Demo begins when a world map is loaded (global <span class="code">world</span> variable non-null).</p>
+	<script src="raycast.js"></script>
+  </body>
+</html>
