@@ -1,0 +1,317 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta name="viewport" content="width=860, initial-scale=1">
+	<title>Column-RLE Image Editor</title>
+	<link rel="preload" as="image" href="copy.png">
+	<link rel="preload" as="script" href="spri.js">
+	<style type="text/css" media="all"><!--
+.clickzone {
+	position: absolute;
+	cursor: pointer;
+	width: 512px;
+	height: 24px;
+	left: 30px;
+	z-index: 2;
+	background-color: #d6d9e0;
+	opacity: 0.3;
+}
+.cursor-v {
+	position: absolute;
+	width: 0px;
+	height: 545px;
+	top: 14px;
+	z-index: 1;
+	border-left: 1px dashed #606060;
+	background-color: #ffffff;
+}
+.cursor-h {
+	position: absolute;
+	width: 538px;
+	height: 0px;
+	left: 14px;
+	z-index: 1;
+	border-top: 1px dashed #606060;
+	background-color: #ffffff;
+}
+.messagebox {
+	color: #202020;
+	font-size: small;
+}
+.palswatch {
+	display: inline-block;
+	border: 2px #202020 solid;
+	border-radius: 4px;
+	margin: 2px;
+	width: 24px;
+	height: 24px;
+	background-color: #ff00ff;
+}
+.palswatch:hover {
+	border-color: #a0a0a0;
+}
+.palswatchsel {
+	border-color: #909090;
+}
+.palswatchsel:hover {
+	border-color: #c0c0c0;
+}
+.speccur {
+	position: absolute;
+	width: 15px;
+	left: 60px;
+	z-index: 3;
+	background-image: url(copy.png);
+}
+.speclabel {
+	padding: 0 6px 1px 0;
+	text-align: right;
+}
+.storbox {
+	display: inline-block;
+	padding: 6px;
+	border: 3px #ffd635 solid;
+	border-radius: 5px;
+	margin: 2px;
+}
+.storbox:hover {
+	border-color: #ffeaa0;
+}
+.storboxsel {
+	border-color: #9ca9bd;
+}
+.storboxsel:hover {
+	border-color: #c6ceda;
+}
+.storbox > :nth-child(1) {
+	color: #808080;
+	text-align: right;
+	font-family: Courier New, monospace;
+}
+.storbox > :nth-child(2) {
+	font-family: Courier New, monospace;
+}
+.storbox > :nth-child(3) {
+	width: 32px;  /* sync with spri.js::STOREBOX_IMG_WIDTH  */
+	height: 32px; /* sync with spri.js::STOREBOX_IMG_HEIGHT */
+	display: block;
+	border: 1px #202020 solid;
+	margin: 0 auto;
+}
+.tablksi {
+	display: inline-block;
+	margin: 0 0.6em 4px 0;
+	text-indent: 1.8em;
+}
+.tablksr {
+	display: inline-block;
+	margin: 0 1em 4px 0;
+}
+body {
+	font-family: Verdana, Arial, sans-serif;
+	line-height: 130%;
+	font-size: 100%;
+	text-size-adjust: none;
+	-webkit-text-size-adjust: none;
+}
+h1 {
+	margin-left: 10%;
+	padding-bottom: 8px;
+}
+h2 {
+	margin-left: 7%;
+	padding-bottom: 6px;
+}
+input[type=file] {
+	border: 1px solid #404040;
+	padding: 6px;
+}
+input[type=radio] {
+	vertical-align: middle;
+	margin: 1px 4px;
+}
+input[type=number] {
+	font-family: Courier New, monospace;
+	font-size: large;
+	vertical-align: middle;
+	width: 3em;
+}
+label.radio {
+	vertical-align: middle;
+	padding-bottom: 1px;
+}
+p, ul {
+	padding-bottom: 0.5em;
+	margin-left: 5%;
+	margin-right: 10%;
+	font-size: inherit;
+}
+ul li {
+	margin-bottom: 4px;
+}
+select {
+	width: 9em;
+	font-family: Courier New, monospace;
+	display: block;
+	margin: 4px auto;
+}
+span.code {
+	font-family: Courier New, monospace;
+	font-weight: bold;
+	white-space: nowrap;
+	background-color: #f2f2f2;
+	color: #202020;
+}
+span.num {
+	font-family: Courier New, monospace;
+	font-size: large;
+	width: 2.2em;
+	display: inline-block;
+	text-align: left;
+}
+table {
+	margin: 0 auto;
+}
+textarea {
+	padding: 0.2em 0.4em;
+	width: 36em;
+	height: 12em;
+	background-color: #f2f2f2;
+	overflow: scroll;
+	margin-left: 0.8em;
+}
+td {
+	padding: 4px 0;
+}
+td.speclabeln {
+	text-align: right;
+	padding: 0 6px 1px 0;
+}
+	--></style>
+  </head>
+  <body>
+	<h1>Column-RLE Sprite Editor</h1>
+	<p>A simple column-oriented compressed format, specifically intended as a texture source for graphics engines which draw walls or sprites as columns of pixels.  Compared to a plain bitmap with a fixed and regular pixel grid, here the grid lines (column/row boundaries) can be set in arbitrary and independent positions, making the level of detail flexible and reducing the repetition of an equivalent bitmap image.  Ideal graphics are low detail, mostly blocky, and make prominent use of solid colors; compare the style of Piet Mondriaan's tabular works.</p>
+	<table>
+	  <tr>
+		<td id="formatters" style="vertical-align: bottom; width: 19em;">
+		  <div class="tablksi">Load File</div><br>
+		  <div class="tablksr"><input type="file" id="filein"></div><br>
+		  <div class="tablksi">Format</div><br>
+		</td>
+		<td><textarea id="filetext"></textarea></td>
+	  </tr>
+	  <tr><td style="text-align: center;"><input type="button" id="fileload" value="Load File &downarrow;" style="font-size: large; padding: 5px 18px;"></td><td style="text-align: center;"><input type="button" id="fileparse" value="Parse &downarrow;" style="font-size: large; padding: 5px 14px;"> &nbsp; <input type="button" id="fileref" value="Refresh &uparrow;" style="font-size: large; padding: 5px 10px;"> &nbsp; &nbsp; &nbsp; <input type="button" id="filedl" value="Download 📄" style="font-size: large; padding: 5px 6px;"></td></tr>
+	  <tr><td class="messagebox" id="messagebox" colspan="2">Status: ready.</td></tr>
+	</table>
+	<table style="width: 802px; margin: auto; border-collapse: collapse; margin-bottom: 0.5em;"><tr>
+	  <td style="border: 1px #202020 solid; padding: 4px; vertical-align: top;">
+		<table style="line-height: 100%; margin: 0 0;">
+		  <tr><td colspan="2" style="text-align: center; font-weight: bold; text-decoration: underline;">Selected</td></tr>
+		  <tr><td class="speclabel"><label for="storslot">Slot</label></td>   <td><input type="number" value="0" min="0" max="15" id="storslot"></td></tr>
+		  <tr><td class="speclabel"><label for="storname">Name</label></td>   <td><input type="text" size="8" value="new" id="storname" style="font-family: Courier New, monospace; font-size: large;"></td></tr>
+		  <tr><td class="speclabeln">Colors</td> <td><span class="num" id="storcolors">0</span></td></tr>
+		  <tr><td class="speclabeln">Columns</td><td><span class="num" id="storcolumns">0</span></td></tr>
+		  <tr><td colspan="2" style="text-align: center;">
+			<input type="button" id="stornew" value="New">
+			<input type="button" id="storcopy" value="Copy">
+			<input type="button" id="stordel" value="Delete ⚠️">
+		  </td></tr>
+		</table>
+	  </td><td id="storcontainer" style="border: 1px #202020 solid; padding: 4px; width: 100%; vertical-align: top;">
+		<div class="storbox" id="storbox0"><div id="storboxnum0">0</div><div id="storboxname0">new</div><canvas id="storboximg0" width="32" height="32"></canvas></div>
+	  </td>
+	</tr></table>
+	<br>
+	<table style="width: 802px; margin: auto; border-collapse: collapse; margin-bottom: 0.5em;"><tr>
+	  <td style="border: 1px #202020 solid; border-right: none; padding: 4px; vertical-align: top;">
+		<table style="line-height: 100%; margin: 0 0;">
+		  <tr><td colspan="2" style="text-align: center; font-weight: bold; text-decoration: underline;">Palette</td></tr>
+		  <tr><td class="speclabel"><label for="palmax">Colors</label></td><td><input type="number" value="16" min="2" max="256" id="palmax"></td></tr>
+		  <tr><td colspan="2" style="text-align: center;"><input type="button" id="palrem" value="Sort by Use"></td></tr>
+		  <tr><td colspan="2" style="text-align: center; font-weight: bold; text-decoration: underline;">Attribute</td></tr>
+		  <tr><td class="speclabel"><label for="palidx">Index</label></td> <td><input type="number" value="0" min="0" max="255" id="palidx"></td></tr>
+		</table>
+	  <td style="border: 1px #202020 solid; border-left: none; padding: 4px; vertical-align: top;">
+		<table style="line-height: 100%; margin: 0 0;">
+		  <tr><td class="speclabel"><label for="palred">Red</label></td>     <td><input type="number" value="0" min="0" max="255" id="palred"></td></tr>
+		  <tr><td class="speclabel"><label for="palgre">Green</label></td>   <td><input type="number" value="0" min="0" max="255" id="palgre"></td></tr>
+		  <tr><td class="speclabel"><label for="palblu">Blue</label></td>    <td><input type="number" value="0" min="0" max="255" id="palblu"></td></tr>
+		  <tr><td class="speclabel"><label for="palpatch">Select</label></td><td><input type="color" id="palpatch" value="#ff00ff" list="pallist" style="width: 62px; height: 38px; padding: 0;"><datalist id="pallist"></datalist></td></tr>
+		</table>
+	  </td><td id="palswatches" style="border: 1px #202020 solid; padding: 4px; width: 100%; vertical-align: top; line-height: 0%;">
+		<div class="palswatch" id="palsw0"></div><div class="palswatch" id="palsw1"></div>
+	  </td>
+	</tr></table>
+	<br>
+	<table style="margin: auto; border-collapse: collapse; margin-bottom: 0.5em;">
+	  <tr>
+		<td style="vertical-align: top; padding: 6px; text-align: center; border: 1px solid #606060;">
+		  <div><span class="speclabel">Columns</span><span class="num" id="coltotal">0</span></div>
+		  <select size="16" id="colsel"><option value="0">0: 0</option></select>
+		  <div><input type="button" id="colins" value="Split"> <input type="button" id="coldel" value="Delete"></div>
+		  <table style="line-height: 100%;">
+			<tr><td class="speclabeln"><label for="colpos">X pos</label></td><td><input type="number" value="0" min="0" max="255" id="colpos"></td></tr>
+		  </table>
+		  <div style="margin: 10px 0 6px 0;"><label for="fromcol">Spec from Col.</label></div>
+		  <div><input type="number" value="0" min="0" max="1" id="fromcol"> <input type="button" id="specclone" value="Clone"></div>
+		</td><td style="vertical-align: top; padding: 6px; text-align: center; border: 1px solid #606060;">
+		  <div><span class="speclabel">Column</span><span class="num" id="specnum">0</span></div>
+		  <select size="16" id="rowsel"><option value="0">0: 0, 0</option></select>
+		  <div><input type="button" id="rowins" value="Split"> <input type="button" id="rowdel" value="Delete"></div>
+		  <table style="line-height: 100%;">
+			<tr><td class="speclabeln">Row</td><td style="text-align: left;"><span class="num" id="rownum">0</span></td></tr>
+			<tr><td class="speclabel"><label for="rowpos">Y pos</label></td><td><input type="number" value="1" min="1" max="255" id="rowpos"></td></tr>
+			<tr><td class="speclabel"><label for="rowidx">Color</label></td><td><input type="number" value="0" min="0" max="255" id="rowidx"></td></tr>
+		  </table>
+		</td><td id="editbox" style="position: relative; border: 1px solid #606060; overflow: hidden; padding: 0; cursor: crosshair; width: 560px; height: 575px;">
+		  <canvas id="editor" width="562" height="572" style="position: absolute; top: 0px; left: 0px;">Canvas support and scripting are required for this application.</canvas>
+		  <div class="clickzone" id="editclicktop" style="top: 0px;"></div>
+		  <div class="clickzone" id="editclickleft" style="width: 24px; height: 512px; top: 30px; left: 0px;"></div>
+		  <div class="clickzone" id="editclickbot" style="top: 550px;"></div>
+		  <div class="cursor-v" id="editcurv1" style="left: 30px;"></div>
+		  <div class="cursor-v" id="editcurv2" style="left: 100px;"></div>
+		  <div id="editcurv2c" style="position: absolute; width: 7px; height: 7px; top: 8px; left: 95px; border: solid 1px #606060; background-color: #ffffff; cursor: ew-resize; z-index: 3;"></div>
+		  <div class="cursor-v" id="editcurv3" style="left: 542px;"></div>
+		  <div class="cursor-h" id="editcurh1" style="top: 30px;"></div>
+		  <div class="cursor-h" id="editcurh2" style="top: 100px;"></div>
+		  <div id="editcurh2c" style="position: absolute; width: 7px; height: 7px; left: 8px; top: 95px; border: solid 1px #606060; background-color: #ffffff; cursor: ns-resize; z-index: 3;"></div>
+		  <div class="cursor-h" id="editcurh3" style="top: 542px;"></div>
+		  <div class="speccur" id="editspeccur1" style="height: 7px; top: 543px;"></div>
+		  <div class="speccur" id="editspeccur2" style="height: 18px; top: 550px; background-position: 0px -7px; cursor: pointer;"></div>
+		</td>
+	  </tr>
+	</table>
+	<h1>Documentation</h1>
+	<p>This is a variable-resolution image format.  An idealized embodiment, would essentially be a very limited vector format: supporting only filled rectangles, but to arbitrary precision, regarding their placement within a square image region (or any scaling thereof).  The preferred embodiment here, restricts resolution to 8-bit values, thus all images are ultimately 256x256 pixels by definition.  Alternatively, the image can be considered as a 1x1 tile filled with fractional pixels, and edges are given in fractional (0.8 fixed point) coordinates.  The result can be scaled to any integer pixel size (X or Y), with rounding, or exactly (no rounding) when the coordinates, so multiplied, leave no remainder (which can require at most a 256 multiplier, hence that being the guaranteed equivalent bitmap representation).  Note, neither pixel nor physical scaling is defined in this format; if needed, these must be specified externally.</p>
+	<p>Further limitations are intended: a maximum of perhaps 16 columns and 16 rows per column.  Column boundaries can be placed anywhere on the image, without overlapping (each other, or image edges) of course.  Rows can be specified independently (per column) (this is the format used and output from this tool), or an optimizer can reuse previous columns (whole or in part) to save a few bytes of space.  (The format supports up to full image capacity, for flexibility.)  Color palettes of 2, 16, 64 or 256 colors are suggested.</p>
+	<p>Color is indexed mode, using a palette of up to 256 entries.  Attributes are 24-bit RGB color.</p>
+	<h2>File Formats</h2>
+	<p>Essentially the same content and ordering is used in all formats, just in different encodings:</p>
+	<p>Binary uses a fixed-length header (version number, palette length, columns length), variable-length palette section (3 bytes per entry), variable-length columns section (2 or 3 bytes per entry, depending on version number; the upper version uses 2-byte length to store specs indices), and variable-length specs section (2 bytes per entry).  (Length of specs section is not well constrained, and a valid file could have gaps, extra data after end of structure, etc.)  Note that the specs index is cumulative: the internal structure is an array of arrays, but the binary format squashes this into a concatenated array, with zero-terminators delineating each specs entry (because a row must end with position 0 &equiv; 256 mod 256).  It is for this reason, binary is the only format with two versions (i.e., purely because the index can be &ge;256); all others index into the array of arrays with separate axes.</p>
+	<p>Text format encodes numbers (other than palette entries) in ASCII decimal, comma delimited, and ignores line comments starting with "#".  Colors are stored as HTML colors (ASCII hexadecimal) with the leading "#" omitted.  Line ends are generally permitted within sections, until the correct number of tokens has been read, at which point a line end is mandatory.  Specs are stored in array-of-arrays form, with line ends terminating each sub-array.</p>
+	<p>JSON format uses the internal JS data structure as a convenient exchange method, while also being modestly human-readable (if a bit finicky for human-writability).</p>
+	<p>Header output is an export suitable for including in a C project, as macro or char array data.  (No header input method is provided, so as not to imply C language parsing capability..!)</p>
+	<p>PNG is available as an import/export format; of course the output contains no structure of the image given, but is a convenient way to view and edit graphics with other tools.  Import must be limited to 256 colors or fewer, and 256x256 or smaller dimensions; more is accepted but data loss will occur (namely, discarding pixels beyond the upper-left 256x256, and using the first 256 colors found in raster order).  Alpha channel is ignored.  Redundant row and column data are automatically reduced on import, reproducing the geometry (if not the exact ordering) of an exported image.  Other image formats may be usable depending on browser compatibility (this app assumes PNG, but browsers may use "MIME sniffing", and recognize and successfully load other formats, despite the header given).</p>
+	<h2>Editor Usage</h2>
+	<p>File I/O: data sources and outputs are provided at the top of this page.  To read a file, select one with the "Load file" box, click the appropriate format radio button, then press the Load File button.  To read copied text, select the appropriate format, replace text box contents with the desired content, then press Parse.  To save to copyable text, select the desired format, press Refresh, then select and copy the contents from the text box.  (Text box I/O only works on CSV and JSON formats.  Other formats report some statistics about the file.)  To save as file, select the desired file type, then press Download.</p>
+	<p>Session storage: for convenience, multiple images can be open at once.  Images can be renamed, copied and deleted.  (Backup or undo is not implemented; it is strongly recommended to make copies of work frequently.)  Images are stored in numbered slots, with a filename, and a thumbnail preview.  TODO: The list is also stored in a local (in-browser) cookie; note: the cookie is not requested by the server, nor are the data visible from other machines/accounts.  Clicking a thumbnail or changing the Slot index, selects an image, showing its contents in the Palette and Column editing areas.  Pressing Copy will duplicate the currently selected image.</p>
+	<p>New (loaded or copied) images are placed at the right of the storage list.  If the list is full (16 files), an error message will be shown instead.</p>
+	<p>Deleted images are merely hidden at first; check the <span class="code">storage</span> variable for indices at/above <span class="code">maxImages</span>.  All images can be made visible with a call to <span class="code">storageInit()</span>.  Images hidden, or beyond normal bounds, are permanently deleted on closing the page.</p>
+	<p>Palette editor: this shows the list of colors available to use in the currently selected image.  The count can be changed, and attributes can be selected and their RGB values changed numerically or by color selector.  Increasing count restores previously-deleted or adds new (white default) attributes.  Decreasing count removes unused attributes from the right; to delete more, press Sort by Use, which puts the most-used colors on the left, unused on right.  To delete further, colors must be unused: consider setting a highly-contrasting attribute, then repainting the image to remove the offending color.  Then sort and shrink the palette.</p>
+	<p>Graphics editor: the image is shown here, and column and pixel data can be edited.  Number inputs are provided for manual / exact entry.  Image zoom level is fixed at 2x.</p>
+	<p>Column dividers can be selected by setting the index manually, or clicking on the gray patch above the image, in the edit window.  Column positions can be moved by setting the position numerically, or by click-and-dragging on the control point above the image.</p>
+	<p>Row divider positions can be edited similarly: selected by clicking the left gray patch, or moved by dragging the control point left of the image.  All rows sharing the same position as the selected row, can be adjusted in unison by holding SHIFT before click-and-dragging the left control point.</p>
+	<p>Rows can be assigned a color by selecting the desired index in the palette, then clicking/dragging on the image.  Color can be picked from the image by holding SHIFT and clicking.</p>
+	<p>Columns can be copied from existing, using the Clone button.  Select the target column, then select the source with the "Spec from Col." input, or clicking the gray patch below the image.  This makes repeating, alternating or mirrored symmetry simpler to draw.</p>
+	<p>Row and column dividers can be inserted, by selecting a position and splitting it in half.  Splitting is not allowed if the row or column is adjacent to its predecessor.  Rows and columns can also be deleted, except for the last one.</p>
+	<p>Again, no undo function is provided; edit carefully, and make frequent backups (e.g. press Copy, make edits, then Delete then Copy if you make a mistake).</p>
+	<h2>Revision History</h2>
+	<ul>
+	  <li>[2025/01/27] First release</li>
+	  <li>[2024/12/11] Created</li>
+	</ul>
+	<script src="spri.js"></script>
+  </body>
+</html>
