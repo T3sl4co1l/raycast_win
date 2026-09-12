@@ -23,12 +23,10 @@
 				<Option compiler="gcc" />
 				<Option parameters="..\level.map" />
 				<Compiler>
-					<Add option="-flto" />
 					<Add option="-O3" />
 				</Compiler>
 				<Linker>
-					<Add option="-flto" />
-					<Add option="-s" />
+					<Add option="-static" />
 				</Linker>
 			</Target>
 		</Build>
@@ -38,7 +36,6 @@
 			<Add option="-m64" />
 		</Compiler>
 		<Linker>
-			<Add option="-static-libstdc++" />
 			<Add option="-static-libgcc" />
 			<Add option="-static" />
 			<Add option="-m64" />
@@ -52,8 +49,11 @@
 			<Add after='cmd /c &quot;objdump -h -S -M intel $(TARGET_OUTPUT_FILE) &gt; $(TARGET_OUTPUT_DIR)$(TARGET_OUTPUT_BASENAME).lss&quot;' />
 			<Add after='cmd /c nm &quot;$(TARGET_OUTPUT_FILE)&quot; &gt; &quot;$(TARGET_OUTPUT_DIR)\$(TARGET_OUTPUT_BASENAME).lst&quot;' />
 		</ExtraCommands>
-		<Unit filename="main.cpp" />
-		<Unit filename="main.h" />
+		<Unit filename="gdi_colors.h" />
+		<Unit filename="main.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="main_c.h" />
 		<Extensions>
 			<code_completion />
 			<envvars />

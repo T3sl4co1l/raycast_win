@@ -17,10 +17,7 @@ struct RayType {
 
 VOID OnPaint(HDC hdc);
 LRESULT CALLBACK WindowProcedure (HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam);
-int WINAPI WinMain(HINSTANCE hThisInstance,
-                     HINSTANCE hPrevInstance,
-                     LPSTR lpszArgument,
-                     int nCmdShow);
+int WINAPI WinMain(HINSTANCE hThisInstance, HINSTANCE hPrevInstance, LPSTR lpszArgument, int nCmdShow);
 void setKeyState(int key, bool pressed);
 void doGameTic(void);
 int loadMap(char* f);
